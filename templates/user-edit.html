@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %} Edit User {% endblock %}
+
+{% block content %}
+
+    <h1>Edit A User</h1>
+
+    <form action='users/{{userId}}/edit' method='POST'>
+        <div class="form-group">
+        <label for="first-name">First Name</label>
+        <input class="form-control" id="first-name" aria-describedby="emailHelp" name="first-name" placeholder="Enter a first name">
+        </div>
+        <div class="form-group">
+        <label for="last-name">Last Name</label>
+        <input class="form-control" name="last-name" id="last-name" placeholder="Enter a last name">
+        </div>
+        <div class="form-group">
+            <label for="image-url">Image URL</label>
+            <input class="form-control" name="image-url" id="image-url" placeholder="Provide an image of this user">
+        </div>
+        <button type="submit" class="btn btn-success"> Save </button>
+        <button type="submit" class="btn btn-light"> Cancel </button>
+    </form>
+
+{% endblock %}
+    

@@ -9,7 +9,7 @@ def connect_db(app):
     db.app = app
     db.init_app(app)
 
-class User(dbModel):
+class User(db.Model):
 
     __tablename__ = "users"
 
@@ -22,6 +22,5 @@ class User(dbModel):
         nullable=False)
     image_url = db.Column(db.String(500),
         nullable=True
-        #TODO: default= INSERT DEFAULLT FAVICON AVATAR
         )
 
