@@ -1,7 +1,7 @@
 """Blogly application."""
 
 from flask import Flask, request, render_template, redirect
-from models import db, connect_db, User
+from models import db, connect_db, User, Post
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Jayjayiscool1@127.0.0.1/blogly'
@@ -53,8 +53,9 @@ def get_info_for_user(userid):
     delete the user."""
 
     user = User.query.get_or_404(userid)
+    posts = user.posts
 
-    return render_template("user-detail.html", user=user)
+    return render_template("user-detail.html", user=user, posts=posts)
 
 @app.route("/users/<int:userid>/edit")
 def edit_a_user(userid):
@@ -96,6 +97,75 @@ def delete_a_user(userid):
     db.session.commit()
 
     return redirect("/users")
+
+@app.route("/users/<int:userid>/posts/new")
+def add_a_post_from_user(userid):
+    """Show form to add a post for that user."""
+    user = User.query.get_or_404(userid)
+
+    return render_template("new-post.html", user=user)
+
+@app.route("/users/<int:userid>/posts/new", methods=["POST"])
+def handle_add_a_post(userid):
+    """Handle add form; add post and redirect to the user detail page."""
+
+    title = request.form['title']
+    content = request.form['post-content']
+
+    post_to_add = Post(title=title, content=content, user_id=userid)
+
+    db.session.add(post_to_add)
+
+    db.session.commit()
+
+    return redirect(f"/users/{userid}")
+
+@app.route("/posts/<int:postid>")
+def show_a_post(postid):
+    """ Show a post.
+    Show buttons to edit and delete the post.
+    """
+    post = Post.query.get_or_404(postid)
+
+    return render_template("post-detail.html", post=post)
+
+@app.route("/posts/<int:postid>/edit")
+def show_form_to_edit_post(postid):
+    """ Show form to edit a post, and to cancel (back to user page).
+    """
+    post = Post.query.get_or_404(postid)
+
+    return render_template("post-edit.html", post=post)
+
+@app.route("/posts/<int:postid>/edit", methods=["POST"])
+def handle_editing_of_post(postid):
+    """Handle editing of a post. Redirect back to the post view"""
+
+    post_to_edit = Post.query.get_or_404(postid)
+
+    new_title = request.form["title"]
+    new_content = request.form["post-content"]
+
+    post_to_edit.title = new_title
+    post_to_edit.content = new_content
+
+    db.session.commit()
+
+    return redirect(f"/posts/{postid}")
+
+@app.route("/posts/<int:postid>/delete", methods=["POST"])
+def delete_a_post(postid):
+    """ Delete the post passed in """
+    post_to_delete = Post.query.get_or_404(postid)
+    user_return_id = post_to_delete.user_id
+    db.session.delete(post_to_delete)
+    db.session.commit()
+    return redirect(f"/users/{user_return_id}")
+
+
+
+
+
 
 
 
