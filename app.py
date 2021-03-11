@@ -44,34 +44,56 @@ def handle_new_user_creation():
     user = User(first_name = first_name, last_name = last_name, image_url = img_url)
     db.session.add(user)
     db.session.commit()
-    
+
     return redirect("/users")
 
 @app.route("/users/<int:userid>")
-def get_info_for_user():
+def get_info_for_user(userid):
     """ show infomration about the given user. Have a button to get to their edit page, and to 
     delete the user."""
 
-    return render_template("user-detail.html")
+    user = User.query.get_or_404(userid)
+
+    return render_template("user-detail.html", user=user)
 
 @app.route("/users/<int:userid>/edit")
-def edit_a_user():
+def edit_a_user(userid):
     """ Show the edit page for the user.
     Have a cancel button that returns to the detail page for a user,
     and a save button that updates the user. """
 
-    render_template("user-edit.html", user=user)
+    user = User.query.get_or_404(userid)
+
+    return render_template("user-edit.html", user=user)
 
 
 @app.route("/users/<int:userid>/edit", methods=["POST"])
-def process_edit_user():
+def process_edit_user(userid):
     """Process the edit form, returning the user to the /users page"""
 
+    user_to_edit = User.query.get(userid)
+
+    first_name = request.form['first-name']
+    last_name = request.form['last-name']
+    img_url = request.form['image-url']
+
+    user_to_edit.first_name = first_name
+    user_to_edit.last_name = last_name
+    user_to_edit.img_url = img_url
+
+    db.session.commit()
 
     return redirect("/users")
 
 @app.route("/users/<int:userid>/delete", methods=["POST"])
 def delete_a_user(userid):
+    """Delete the user from the database, and return"""
+
+    user_to_delete = User.query.get(userid)
+
+    db.session.delete(user_to_delete)
+
+    db.session.commit()
 
     return redirect("/users")
 
